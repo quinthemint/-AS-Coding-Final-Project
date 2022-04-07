@@ -6,40 +6,71 @@ import {k} from "./kaboom.js"
 // Load assets
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("enemy", "/sprites/download.jpeg")
+loadSprite("stone", "/sprites/stoneFloor.jpg")
 
 // Define player movement speed (pixels per second)
 const SPEED = 320
 
-// Add player game object
-const player = add([
-	sprite("gosling"),
-	// center() returns the center point vec2(width() / 2, height() / 2)
-  pos(center()),
-	area(),
-	// body() component gives the ability to respond to gravity
-	body(),
-])
+const LEVELS = [
+	[
+		"@  ^ $$ >",
+		"=========",
+	],
+	[
+		"@   $   >",
+		"=   =   =",
+	],
+]
 
-add([
-	rect(width(), 48),
-	outline(4),
-	area(),
-	pos(0, height() - 48),
-	// Give objects a solid() component if you don't want other solid objects pass through
-	solid(),
-])
+scene("game", ({ levelIdx, score }) => {
 
-add([
-		sprite("enemy"),
-		pos(40,40),
-		// Both objects must have area() component to enable collision detection between
-		area(),
-		"enemy",
-])
+	gravity(2400)
 
+	// Use the level passed, or first level
+	const level = addLevel(LEVELS[levelIdx || 0], {
+		width: 64,
+		height: 64,
+		pos: vec2(100, 200),
+		"@": () => [
+			sprite("gosling"),
+			area(),
+			body(),
+			origin("bot"),
+			"player",
+		],
+		"=": () => [
+			sprite("stone"),
+			area(),
+			solid(),
+			origin("bot"),
+		],
+	})
+
+  const player = get("player")[0]
+  
 player.onCollide("enemy", (enemy) => {
 	destroy(enemy)
 })
+  
+  player.onUpdate(() => {
+		if (player.pos.y >= 480) {
+			go("lose")
+    }
+    
+    if (player.pos.x >= 800) {
+      if (levelIdx < LEVELS.length - 1) {
+			// If there's a next level, go() to the same scene but load the next level
+			go("game", {
+				levelIdx: levelIdx + 1,
+			})
+		} else {
+			// Otherwise we have reached the end of game, go to "win" scene!
+			go("win")
+		}
+    }
+  })
+  
+
   
 // onKeyDown() registers an event that runs every frame as long as user is holding a certain key
 onKeyDown("left", () => {
@@ -74,3 +105,38 @@ add([
 	text("Press arrow keys", { width: width() / 2 }),
 	pos(12, 12),
 ])
+
+scene("lose", () => {
+
+	add([
+		text("You Lose"),
+		pos(12),
+	])
+
+	// Press any key to go back
+	onKeyPress(start)
+
+})
+
+scene("win", ({ score }) => {
+
+	add([
+		text(`You grabbed ${score} coins!!!`, {
+			width: width(),
+		}),
+		pos(12),
+	])
+
+	onKeyPress(start)
+
+})
+
+function start() {
+	// Start with the "game" scene, with initial parameters
+	go("game", {
+		levelIdx: 0,
+		score: 0,
+	})
+}
+
+start()

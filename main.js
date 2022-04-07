@@ -1,23 +1,34 @@
 // Input handling and basic player movement
 
-// Start kaboom
+// Start kaboom 
 import {k} from "./kaboom.js"
 
 // Load assets
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("enemy", "/sprites/download.jpeg")
 loadSprite("stone", "/sprites/stoneFloor.jpg")
+loadSprite("ghost", "/sprites/ghost.jpeg")
 
 // Define player movement speed (pixels per second)
 const SPEED = 320
 
 const LEVELS = [
 	[
-		"@  ^ $$ >",
-		"=========",
+		"@       ",
+		"        ",
+		"        ",
+		"        ",
+		"       ^ ",
+		"        ",
+		"==========================",
 	],
 	[
-		"@   $   >",
+		"         ",
+		"         ",
+		"         ",
+		"         ",
+		"         ",
+		"@        ",
 		"=   =   =",
 	],
 ]
@@ -38,6 +49,12 @@ scene("game", ({ levelIdx, score }) => {
 			origin("bot"),
 			"player",
 		],
+		"^": () => [
+			sprite("ghost"),
+			area(),
+			origin("bot"),
+			"enemy",
+		],
 		"=": () => [
 			sprite("stone"),
 			area(),
@@ -46,97 +63,99 @@ scene("game", ({ levelIdx, score }) => {
 		],
 	})
 
-  const player = get("player")[0]
+	const player = get("player")[0]
   
-player.onCollide("enemy", (enemy) => {
-	destroy(enemy)
-})
-  
-  player.onUpdate(() => {
+	player.onCollide("ghost", (enemy) => {
+		destroy(enemy)
+	})
+
+	player.onUpdate(() => {
 		if (player.pos.y >= 480) {
 			go("lose")
-    }
-    
-    if (player.pos.x >= 800) {
-      if (levelIdx < LEVELS.length - 1) {
-			// If there's a next level, go() to the same scene but load the next level
-			go("game", {
-				levelIdx: levelIdx + 1,
-			})
-		} else {
-			// Otherwise we have reached the end of game, go to "win" scene!
-			go("win")
 		}
-    }
-  })
-  
-
-  
-// onKeyDown() registers an event that runs every frame as long as user is holding a certain key
-onKeyDown("left", () => {
-	// .move() is provided by pos() component, move by pixels per second
-	player.move(-SPEED, 0)
-})
-
-onKeyDown("right", () => {
-	player.move(SPEED, 0)
-})
-
-onKeyDown("up", () => {
-if (player.isGrounded()) {
-		// .jump() is provided by body()
-		player.jump()
-	}
-})
-
-onKeyDown("down", () => {
-	player.move(0, SPEED)
-})
-
-
-// onClick() registers an event that runs once when left mouse is clicked
-onClick(() => {
-	// .moveTo() is provided by pos() component, changes the position
-	player.moveTo(mousePos())
-})
-
-add([
-	// text() component is similar to sprite() but renders text
-	text("Press arrow keys", { width: width() / 2 }),
-	pos(12, 12),
-])
-
-scene("lose", () => {
-
-	add([
-		text("You Lose"),
-		pos(12),
-	])
-
-	// Press any key to go back
-	onKeyPress(start)
-
-})
-
-scene("win", ({ score }) => {
-
-	add([
-		text(`You grabbed ${score} coins!!!`, {
-			width: width(),
-		}),
-		pos(12),
-	])
-
-	onKeyPress(start)
-
-})
-
-function start() {
-	// Start with the "game" scene, with initial parameters
-	go("game", {
-		levelIdx: 0,
-		score: 0,
+    
+		if (player.pos.x >= 1200) {
+			if (levelIdx < LEVELS.length - 1) {
+				// If there's a next level, go() to the same scene but load the next level
+				go("game", {
+					levelIdx: levelIdx + 1,
+				})
+			} else {
+				// Otherwise we have reached the end of game, go to "win" scene!
+				go("win")
+			}
+		}
 	})
-}
 
-start()
+
+  
+	// onKeyDown() registers an event that runs every frame as long as user is holding a certain key
+	onKeyDown("left", () => {
+		// .move() is provided by pos() component, move by pixels per second
+		player.move(-SPEED, 0)
+	})
+
+	onKeyDown("right", () => {
+		player.move(SPEED, 0)
+	})
+
+	onKeyDown("up", () => {
+		if (player.isGrounded()) {
+			// .jump() is provided by body()
+			player.jump()
+		}
+	})
+
+	onKeyDown("down", () => {
+		player.move(0, SPEED)
+	})
+
+
+	// onClick() registers an event that runs once when left mouse is clicked
+	onClick(() => {
+		// .moveTo() is provided by pos() component, changes the position
+		player.moveTo(mousePos())
+	})
+
+	add([
+		// text() component is similar to sprite() but renders text
+		text("Press arrow keys", { width: width() / 2 }),
+		pos(12, 12),
+	])
+
+	scene("lose", () => {
+
+		add([
+			text("You Lose"),
+			pos(12),
+		])
+
+		// Press any key to go back
+		onKeyPress(start)
+
+	})
+
+	scene("win", () => {
+
+		add([
+			text(`You grabbed 999999 coins!!!`, {
+				width: width(),
+			}),
+			pos(12),
+		])
+
+		onKeyPress(start)
+
+	})
+
+	})
+
+	function start() {
+		// Start with the "game" scene, with initial parameters
+		go("game", {
+			levelIdx: 0,
+			score: 0,
+		})
+	}
+
+	start()

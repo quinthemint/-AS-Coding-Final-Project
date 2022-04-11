@@ -4,6 +4,30 @@
 import {k} from "./kaboom.js"
 
 // Load assets
+// loadSprite("blurby", "/sprites/blurby.png", {
+// 	// The image contains 9 frames layed out horizontally, slice it into individual frames
+// 	sliceX: 9,
+// 	// Define animations
+// 	anims: {
+// 		"idle": {
+// 			// Starts from frame 0, ends at frame 3
+// 			from: 0,
+// 			to: 3,
+// 			// Frame per second
+// 			speed: 5,
+// 			loop: true,
+// 		},
+// 		"run": {
+// 			from: 4,
+// 			to: 7,
+// 			speed: 10,
+// 			loop: true,
+// 		},
+// 		// This animation only has 1 frame
+// 		"jump": 8
+// 	},
+// })
+
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("enemy", "/sprites/download.jpeg")
 loadSprite("stone", "/sprites/stoneFloor.jpg")

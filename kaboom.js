@@ -7,6 +7,6 @@ export const k = kaboom({
     scale: 2,
     font: "sinko",
     canvas: document.querySelector("#mycanvas"),
-    background: [ 0, 0, 255, ],
+    background: [ 50, 50, 50, ],
     global: true
 });

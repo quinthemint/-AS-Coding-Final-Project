@@ -1,0 +1,8 @@
+Remove white background from sprites 
+Make twig able to be picked up 
+Add twig holding sprite 
+Resize background (flooring, etc.)
+Make enemy sprite who stands 
+Make enemy who follows 
+Make functional attack feature 
+Start screen/ end screen

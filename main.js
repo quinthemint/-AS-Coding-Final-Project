@@ -39,20 +39,35 @@ loadSprite("stone", "/sprites/stoneFloor.jpg")
 // Define player movement speed (pixels per second)
 const SPEED = 320
 var hasWeapon = false;
+var killCount = 0;
 const LEVELS = [
 	[
 		"@     ^   ",
-		"  +      ",
-		"         ",
-		"         ",
+		"  +       ",
+		"         *",
+		"          ",
 		"==========",
 	],
 	[
-		"@          ",
+		"@    +   ^ ",
 		"           ",
+		"           ",
+		"              *",
+		"=    =    =",
+	],
+	[
+		"@          ",
+		"           *",
 		"        =  ",
 		"     =     ",
 		"==         ",
+	],
+	[
+		"@  ++   ^^ ",
+		"           ",
+		"            * ",
+		"========== ",
+		"           ",
 	],
 ]
 
@@ -88,6 +103,13 @@ scene("game", ({ levelIdx, score }) => {
 			state("idle", [ "idle","pickup" ]),
 			"twig",
 		],
+		"*": () => [
+			sprite("gosling"),
+			area(),
+			solid(),
+			"gosling",
+			origin("bot"),
+		],
 		"=": () => [
 			sprite("stone"),
 			area(),
@@ -100,52 +122,67 @@ scene("game", ({ levelIdx, score }) => {
   
 	const twig = get("twig") [0]
 	
-	const dir = player.pos.sub(twig.pos).unit()
+	// const dir = player.pos.sub(twig.pos).unit()
 
-	twig.onStateEnter("pickup", async () => {
-		add([
-			sprite("twig"),
-			pos(twig.pos),
-			move(dir, 30),
-			area(),
-			origin("center"),
-			"twig",
-		])
-	})
+	// twig.onStateEnter("pickup", async () => {
+	// 	add([
+	// 		sprite("twig"),
+	// 		pos(twig.pos),
+	// 		move(dir, 30),
+	// 		area(),
+	// 		origin("center"),
+	// 		"twig",
+	// 	])
+	// })
 		
 	player.play("idle")
 
-	player.onCollide("ghost", (ghost) => {
-		go("lose")
-	})
-
 	player.onCollide("twig", (twig) => {
 		destroy(twig),
-			hasWeapon = true;
+		hasWeapon = true
 	})
 
-	if (hasWeapon) {
-		add([
-			sprite("twig"),
-			pos(twig.pos),
-			area(),
-			origin("center"),
-			"twig",
-		])
-		twig.enterState("pickup")
-	}
+	// if (hasWeapon) {
+	// 	add([
+	// 		sprite("twig"),
+	// 		pos(twig.pos),
+	// 		area(),
+	// 		origin("center"),
+	// 		"twig",
+	// 	])
+	// 	twig.enterState("pickup")
+	// }
 	
-	twig.onCollide("ghost", (ghost, twig) => {
-		destroy(ghost),
-		destory(twig)
-		})
+	// twig.onCollide("ghost", (ghost, twig) => {
+	// 	destroy(ghost),
+	// 	destory(twig)
+	// 	})
 
 	player.onUpdate(() => {
+
+		camPos(player.pos)
+
 		if (player.pos.y >= 1000) {
 			go("lose")
 		}
-    
-		if (player.pos.x >= 635) {
+
+		if (hasWeapon) {
+			player.onCollide("ghost", (ghost) => {
+				destroy(ghost),
+					killCount = killCount + 1,
+					debug.log(killCount),
+				hasWeapon = false
+			})
+		}
+	// 	if (!hasWeapon) {
+	// 	player.onCollide("ghost", (ghost) => {
+	// 		go("lose")
+	// 	})
+	// }
+	
+	})
+
+player.onCollide("gosling",() => {
 			if (levelIdx < LEVELS.length - 1) {
 				// If there's a next level, go() to the same scene but load the next level
 				go("game", {
@@ -156,9 +193,8 @@ scene("game", ({ levelIdx, score }) => {
 				// Otherwise we have reached the end of game, go to "win" scene!
 				go("win")
 			}
-		}
-	})
-
+})
+	
 player.onGround(() => {
 	if (!isKeyDown("left") && !isKeyDown("right")) {
 		player.play("idle")
@@ -207,16 +243,11 @@ onKeyDown("right", () => {
 		player.move(0, SPEED)
 	})
 
-	if (hasWeapon) {
-		onKeyDown("space", () => {
-	
-	})
-}
-
 	// onClick() registers an event that runs once when left mouse is clicked
 	onClick(() => {
 		// .moveTo() is provided by pos() component, changes the position
 		player.moveTo(mousePos())
+		debug.log(hasWeapon)
 	})
 
 	scene("lose", () => {
@@ -234,7 +265,7 @@ onKeyDown("right", () => {
 	scene("win", () => {
 
 		add([
-			text(`You grabbed 999999 coins!!!`, {
+			text("You killed " + killCount + " enemies!!!", {
 				width: width(),
 			}),
 			pos(12),

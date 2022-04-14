@@ -4,9 +4,9 @@
 import {k} from "./kaboom.js"
 
 // Load assets
-loadSprite("blurbyWalk", "/sprites/walkingstrip2.png", {
+loadSprite("blurbyWalk", "/sprites/strip1.png", {
 	// The image contains 5 frames layed out horizontally, slice it into individual frames
-	sliceX: 5,
+	sliceX: 20,
 	// Define animations
 	anims: {
 		// {
@@ -18,8 +18,8 @@ loadSprite("blurbyWalk", "/sprites/walkingstrip2.png", {
 		// 	loop: true,
 		// },
 		"run": {
-			from: 1,
-			to: 4,
+			from: 14,
+			to: 19,
 			speed: 10,
 			loop: true,
 		},
@@ -38,8 +38,7 @@ loadSprite("stone", "/sprites/stoneFloor.jpg")
 
 // Define player movement speed (pixels per second)
 const SPEED = 320
-var hasWeapon = false;
-var killCount = 0;
+var killCount = 0
 const LEVELS = [
 	[
 		"@     ^   ",
@@ -58,7 +57,7 @@ const LEVELS = [
 	[
 		"@          ",
 		"           *",
-		"        =  ",
+		"     +   =  ",
 		"     =     ",
 		"==         ",
 	],
@@ -70,6 +69,68 @@ const LEVELS = [
 		"           ",
 	],
 ]
+
+scene("title", () => {
+	function addButton(txt, p, f) {
+
+		const btn = add([
+			text(txt),
+			pos(p),
+			area({ cursor: "pointer", }),
+			scale(1),
+			origin("center"),
+		])
+	
+		btn.onClick(f)
+	
+		btn.onUpdate(() => {
+			if (btn.isHovering()) {
+				const t = time() * 10
+				btn.color = rgb(
+					wave(128, 0, t),
+					wave(128, 0, t + 2),
+					wave(128, 0, t + 4),
+				)
+				btn.scale = vec2(1.2)
+			} else {
+				btn.scale = vec2(1)
+				btn.color = rgb()
+			}
+		})
+	
+	}
+	add([
+		text("BLURBY'S RETURN"),
+		color(128, 0, 128),
+		pos(center().sub(100,100)),
+		scale(3),
+		origin("center"),
+	])
+
+	addButton("play", vec2(200,100), () => go("game", {
+			levelIdx: 0,
+			score: 0,
+		}))
+	
+	addButton("tutorial", vec2(200,150), () => go("tutorial"))
+	//add([
+	//	text("play"),
+	//	pos(center().sub(0,50)),
+	//	scale(1),
+	//	area(),
+	//	origin("center")
+	//])
+	//onMouseDown(() => go("game", {
+	//	levelIdx: 0,
+	//	score: 0,
+	//}))
+})
+
+scene("tutorial", () => {
+	add([
+		text("ur bad kid"),
+	])
+})
 
 scene("game", ({ levelIdx, score }) => {
 
@@ -119,39 +180,43 @@ scene("game", ({ levelIdx, score }) => {
 	})
 
 	const player = get("player")[0]
-  
-	const twig = get("twig") [0]
+	const twig = get("twig")[0]
 	
-	// const dir = player.pos.sub(twig.pos).unit()
+	// function weapon() {
+	// let hasWeapon = false;
 
-	// twig.onStateEnter("pickup", async () => {
-	// 	add([
-	// 		sprite("twig"),
-	// 		pos(twig.pos),
-	// 		move(dir, 30),
-	// 		area(),
-	// 		origin("center"),
-	// 		"twig",
-	// 	])
-	// })
+	// return {
+
+	// 	destroy() {
+	// 	 hasWeapon = true;
+	// 	},
+		
+	// 	weaponCheck() {
+	// 		return hasWeapon
+	// 	}, 
+	// 	update() {
+	// 	}
+	// }
+	// }
+		player.onCollide("twig", (twig) => {
+					twig.enterState("pickup")
+				
+		})
+				
+	
+	twig.onStateEnter("pickup", async () => {
+		add([
+			sprite("twig"),
+			pos(twig.pos),
+			follow(player),
+			area(),
+			origin("center"),
+			"twig",
+		])
+	})
 		
 	player.play("idle")
 
-	player.onCollide("twig", (twig) => {
-		destroy(twig),
-		hasWeapon = true
-	})
-
-	// if (hasWeapon) {
-	// 	add([
-	// 		sprite("twig"),
-	// 		pos(twig.pos),
-	// 		area(),
-	// 		origin("center"),
-	// 		"twig",
-	// 	])
-	// 	twig.enterState("pickup")
-	// }
 	
 	// twig.onCollide("ghost", (ghost, twig) => {
 	// 	destroy(ghost),
@@ -165,22 +230,26 @@ scene("game", ({ levelIdx, score }) => {
 		if (player.pos.y >= 1000) {
 			go("lose")
 		}
+	
+		// if (twig.weaponCheck()) {
+		// 		debug.log("hi")
+		// 		player.onCollide("ghost", (ghost) => {
+		// 		debug.log("aklsdjf;lasdkjf;lasdkjf")
+		// 		destroy(ghost),
+		// 			killCount = killCount + 1,
+		// 			debug.log(killCount)
+		// 	})
+		// }
 
-		if (hasWeapon) {
-			player.onCollide("ghost", (ghost) => {
-				destroy(ghost),
-					killCount = killCount + 1,
-					debug.log(killCount),
-				hasWeapon = false
-			})
-		}
-	// 	if (!hasWeapon) {
+	})
+	
+	
+	
+	// 	if (!twig.weaponCheck()) {
 	// 	player.onCollide("ghost", (ghost) => {
 	// 		go("lose")
 	// 	})
 	// }
-	
-	})
 
 player.onCollide("gosling",() => {
 			if (levelIdx < LEVELS.length - 1) {
@@ -246,8 +315,6 @@ onKeyDown("right", () => {
 	// onClick() registers an event that runs once when left mouse is clicked
 	onClick(() => {
 		// .moveTo() is provided by pos() component, changes the position
-		player.moveTo(mousePos())
-		debug.log(hasWeapon)
 	})
 
 	scene("lose", () => {
@@ -279,10 +346,7 @@ onKeyDown("right", () => {
 
 	function start() {
 		// Start with the "game" scene, with initial parameters
-		go("game", {
-			levelIdx: 0,
-			score: 0,
-		})
+		go("title")
 	}
 
 	start()

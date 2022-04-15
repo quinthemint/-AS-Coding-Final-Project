@@ -69,6 +69,16 @@ const LEVELS = [
 		"           ",
 	],
 ]
+const tutorial = [
+	[
+		"@    ",
+		"           ",
+		"             ",
+		"==============*",
+		"           ",
+
+	]
+]
 
 scene("title", () => {
 	function addButton(txt, p, f) {
@@ -158,10 +168,14 @@ scene("game", ({ levelIdx, score }) => {
 		],
 		"+": () => [
 			sprite("twig"),
+			// rect(64,64),
+			// color(RED),
 			area(),
+			// pos(),
 			body(),
 			origin("bot"),
-			state("idle", [ "idle","pickup" ]),
+			state("idle", ["idle", "pickup"]),
+			// outline(),
 			"twig",
 		],
 		"*": () => [
@@ -198,13 +212,23 @@ scene("game", ({ levelIdx, score }) => {
 	// 	}
 	// }
 	// }
-		player.onCollide("twig", (twig) => {
-					twig.enterState("pickup")
-				
-		})
-				
+	// twig.onStateUpdate("idle", () => {
+		console.log("touch: " + twig.state + " " + player.isColliding(twig))
+	// 	if (player.isColliding(twig)) {
+			
+	// 		twig.enterState("pickup")
+	// 	}
+	// })
+
+	onUpdate(() => {
+			console.log("touch: " + twig.state + " " + player.isColliding(twig))
+		if (player.isColliding(twig)) {
+			
+			twig.enterState("pickup")
+		}
+	})
 	
-	twig.onStateEnter("pickup", async () => {
+	twig.onStateEnter("pickup", () => {
 		add([
 			sprite("twig"),
 			pos(twig.pos),

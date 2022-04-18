@@ -32,40 +32,60 @@ loadSprite("blurbyWalk", "/sprites/strip1.png", {
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("ghost", "/sprites/ghost.png")
 loadSprite("twig", "/sprites/twig.png")
-loadSprite("sword", "/sprites/sword.png")
 loadSprite("holdingtwig", "/sprites/holdingtwig.png")
-loadSprite("stone", "/sprites/stoneFloor.jpg")
+loadSprite("stone", "/sprites/cobbletext.png")
 
 // Define player movement speed (pixels per second)
 const SPEED = 320
 var killCount = 0
 const LEVELS = [
 	[
-		"@  +  ^   ",
+		"@       ",
 		"          ",
-		"         *",
-		"          ",
-		"==========",
+		"           ",
+		"   +   ^   ",
+		"=========== =====*",
 	],
 	[
-		"@    +   ^ ",
-		"           ",
-		"           ",
-		"              *",
-		"=    =    =",
+		"@                                    ^+ ",
+		"                          ",
+		"                            ",
+		"                 =  ====   ===*",
+		"===  =  =  =  =               ",
 	],
 	[
-		"@          ",
-		"           *",
-		"     +   =  ",
-		"     =     ",
+		"@          ^    ^     ",
+		"          ===  ===  ===   = *",
+		"    +  =  ",
+		"    =     ",
 		"==         ",
 	],
 	[
-		"@  ++   ^^ ",
+		"@      ",
+		"         ^    ^",
+		"   ++  ===  ====   =* ",
+		"======   ",
 		"           ",
-		"            * ",
-		"========== ",
+	],
+		[
+		"@      ",
+		"        ^    ",
+		"   +    ====  ^  ",
+		"=======      ===*", 
+		"           ",
+	],
+	[
+		"@      ",
+		"             ",
+		"   +    ^           ^",
+		"==================  =   *   ",
+		"           ",
+	],
+	[
+		"@                                                       +^",
+		"                                     == ",
+		"                             ==  ==      ",
+		"=== === ==  ==  =   =   ===                ===*  ",
 		"           ",
 	],
 ]
@@ -168,14 +188,9 @@ scene("game", ({ levelIdx, score }) => {
 		],
 		"+": () => [
 			sprite("twig"),
-			// rect(64,64),
-			// color(RED),
 			area(),
-			// pos(),
-			// body(),
 			origin("bot"),
 			state("idle", ["idle", "pickup"]),
-			// outline(),
 			"twig",
 		],
 		"*": () => [
@@ -196,29 +211,7 @@ scene("game", ({ levelIdx, score }) => {
 	const player = get("player")[0]
 	const twig = get("twig")[0]
 	
-	// function weapon() {
-	// let hasWeapon = false;
-
-	// return {
-
-	// 	destroy() {
-	// 	 hasWeapon = true;
-	// 	},
-		
-	// 	weaponCheck() {
-	// 		return hasWeapon
-	// 	}, 
-	// 	update() {
-	// 	}
-	// }
-	// }
-	// twig.onStateUpdate("idle", () => {
-		console.log("touch: " + twig.state + " " + player.isColliding(twig))
-	// 	if (player.isColliding(twig)) {
-			
-	// 		twig.enterState("pickup")
-	// 	}
-	// })
+	console.log("touch: " + twig.state + " " + player.isColliding(twig))
 
 	onUpdate(() => {
 			console.log("touch: " + twig.state + " " + player.isColliding(twig))
@@ -229,23 +222,50 @@ scene("game", ({ levelIdx, score }) => {
 	})
 	
 	twig.onStateEnter("pickup", () => {
-		add([
+	add([
 			sprite("twig"),
-			pos(twig.pos),
-			follow(player),
+			pos(),
 			area(),
-			origin("center"),
-			"twig",
+			follow(player, vec2(-8, -11)),
+			rotate(0),
+			origin("bot"),
+			"twig_pickup",
+			spin(),
 		])
 	})
-		
-	player.play("idle")
 
+function spin() {
+	let spinning = false
+	return {
+		id: "spin",
+		update() {
+			if (spinning) {
+				this.angle += 1200 * dt()
+				if (this.angle >= 360) {
+					this.angle = 0
+					spinning = false
+				}
+			}
+		},
+		spin() {
+			console.log("its spinning!");
+			spinning = true
+		},
+		
+	}
+}
+	onKeyPress("space", () => {
+		
+		let tp = get("twig_pickup")[0]
+		if (tp) {
+			tp.spin();
+		}
+		tp.onCollide("ghost", (ghost) => {
+	destroy(ghost)
+})
+		})
 	
-	// twig.onCollide("ghost", (ghost, twig) => {
-	// 	destroy(ghost),
-	// 	destory(twig)
-	// 	})
+	player.play("idle")
 
 	player.onUpdate(() => {
 
@@ -336,6 +356,7 @@ onKeyDown("right", () => {
 		player.move(0, SPEED)
 	})
 
+	
 	// onClick() registers an event that runs once when left mouse is clicked
 	onClick(() => {
 		// .moveTo() is provided by pos() component, changes the position
@@ -369,7 +390,7 @@ onKeyDown("right", () => {
 	})
 
 	function start() {
-		// Start with the "game" scene, with initial parameters
+		// Start with the "title" scene, with initial parameters
 		go("title")
 	}
 

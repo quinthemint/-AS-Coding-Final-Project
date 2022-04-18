@@ -41,8 +41,8 @@ const SPEED = 320
 var killCount = 0
 const LEVELS = [
 	[
-		"@     ^   ",
-		"  +       ",
+		"@  +  ^   ",
+		"          ",
 		"         *",
 		"          ",
 		"==========",
@@ -150,7 +150,7 @@ scene("game", ({ levelIdx, score }) => {
 	const level = addLevel(LEVELS[levelIdx || 0], {
 		width: 64,
 		height: 64,
-		pos: vec2(100, 200),
+		// pos: vec2(100, 200),
 		"@": () => [
 			sprite("blurbyWalk"),
 			area(),
@@ -172,7 +172,7 @@ scene("game", ({ levelIdx, score }) => {
 			// color(RED),
 			area(),
 			// pos(),
-			body(),
+			// body(),
 			origin("bot"),
 			state("idle", ["idle", "pickup"]),
 			// outline(),

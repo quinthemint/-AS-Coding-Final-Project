@@ -4,9 +4,9 @@
 import {k} from "./kaboom.js"
 
 // Load assets
-loadSprite("blurbyWalk", "/sprites/strip1.png", {
+loadSprite("blurbyWalk", "/sprites/walk+idletransparent.png", {
 	// The image contains 5 frames layed out horizontally, slice it into individual frames
-	sliceX: 20,
+	sliceX: 6,
 	// Define animations
 	anims: {
 		// {
@@ -18,12 +18,12 @@ loadSprite("blurbyWalk", "/sprites/strip1.png", {
 		// 	loop: true,
 		// },
 		"run": {
-			from: 14,
-			to: 19,
+			from: 1,
+			to: 5,
 			speed: 10,
 			loop: true,
 		},
-		"idle": 1
+		"idle": 0
 		// This animation only has 1 frame
 		// "jump": 8
 	},
@@ -226,7 +226,7 @@ scene("game", ({ levelIdx, score }) => {
 			sprite("twig"),
 			pos(),
 			area(),
-			follow(player, vec2(-8, -11)),
+			follow(player, vec2(-14, -2)),
 			rotate(0),
 			origin("bot"),
 			"twig_pickup",

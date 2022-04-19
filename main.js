@@ -4,9 +4,9 @@
 import {k} from "./kaboom.js"
 
 // Load assets
-loadSprite("blurbyWalk", "/sprites/strip1.png", {
+loadSprite("blurbyWalk", "/sprites/walk+idletransparent.png", {
 	// The image contains 5 frames layed out horizontally, slice it into individual frames
-	sliceX: 20,
+	sliceX: 6,
 	// Define animations
 	anims: {
 		// {
@@ -18,12 +18,12 @@ loadSprite("blurbyWalk", "/sprites/strip1.png", {
 		// 	loop: true,
 		// },
 		"run": {
-			from: 14,
-			to: 19,
+			from: 1,
+			to: 5,
 			speed: 10,
 			loop: true,
 		},
-		"idle": 1
+		"idle": 0
 		// This animation only has 1 frame
 		// "jump": 8
 	},
@@ -32,42 +32,72 @@ loadSprite("blurbyWalk", "/sprites/strip1.png", {
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("ghost", "/sprites/ghost.png")
 loadSprite("twig", "/sprites/twig.png")
-loadSprite("sword", "/sprites/sword.png")
 loadSprite("holdingtwig", "/sprites/holdingtwig.png")
-loadSprite("stone", "/sprites/stoneFloor.jpg")
+loadSprite("stone", "/sprites/cobbletext.png")
 
 // Define player movement speed (pixels per second)
 const SPEED = 320
 var killCount = 0
 const LEVELS = [
 	[
-		"@     ^   ",
-		"  +       ",
-		"         *",
+		"@       ",
 		"          ",
-		"==========",
+		"           ",
+		"   +   ^   ",
+		"=========== =====*",
 	],
 	[
-		"@    +   ^ ",
-		"           ",
-		"           ",
-		"              *",
-		"=    =    =",
+		"@                                    ^+ ",
+		"                          ",
+		"                            ",
+		"                 =  ====   ===*",
+		"===  =  =  =  =               ",
 	],
 	[
-		"@          ",
-		"           *",
-		"     +   =  ",
-		"     =     ",
+		"@          ^    ^     ",
+		"          ===  ===  ===   = *",
+		"    +  =  ",
+		"    =     ",
 		"==         ",
 	],
 	[
-		"@  ++   ^^ ",
-		"           ",
-		"            * ",
-		"========== ",
+		"@      ",
+		"         ^    ^",
+		"   ++  ===  ====   =* ",
+		"======   ",
 		"           ",
 	],
+		[
+		"@      ",
+		"        ^    ",
+		"   +    ====  ^  ",
+		"=======      ===*", 
+		"           ",
+	],
+	[
+		"@      ",
+		"             ",
+		"   +    ^           ^",
+		"==================  =   *   ",
+		"           ",
+	],
+	[
+		"@                                                       +^",
+		"                                     == ",
+		"                             ==  ==      ",
+		"=== === ==  ==  =   =   ===                ===*  ",
+		"           ",
+	],
+]
+const tutorial = [
+	[
+		"@    ",
+		"           ",
+		"             ",
+		"==============*",
+		"           ",
+
+	]
 ]
 
 scene("title", () => {
@@ -140,7 +170,7 @@ scene("game", ({ levelIdx, score }) => {
 	const level = addLevel(LEVELS[levelIdx || 0], {
 		width: 64,
 		height: 64,
-		pos: vec2(100, 200),
+		// pos: vec2(100, 200),
 		"@": () => [
 			sprite("blurbyWalk"),
 			area(),
@@ -159,9 +189,8 @@ scene("game", ({ levelIdx, score }) => {
 		"+": () => [
 			sprite("twig"),
 			area(),
-			body(),
 			origin("bot"),
-			state("idle", [ "idle","pickup" ]),
+			state("idle", ["idle", "pickup"]),
 			"twig",
 		],
 		"*": () => [
@@ -182,46 +211,61 @@ scene("game", ({ levelIdx, score }) => {
 	const player = get("player")[0]
 	const twig = get("twig")[0]
 	
-	// function weapon() {
-	// let hasWeapon = false;
+	console.log("touch: " + twig.state + " " + player.isColliding(twig))
 
-	// return {
-
-	// 	destroy() {
-	// 	 hasWeapon = true;
-	// 	},
-		
-	// 	weaponCheck() {
-	// 		return hasWeapon
-	// 	}, 
-	// 	update() {
-	// 	}
-	// }
-	// }
-		player.onCollide("twig", (twig) => {
-					twig.enterState("pickup")
-				
-		})
-				
+	onUpdate(() => {
+			console.log("touch: " + twig.state + " " + player.isColliding(twig))
+		if (player.isColliding(twig)) {
+			
+			twig.enterState("pickup")
+		}
+	})
 	
-	twig.onStateEnter("pickup", async () => {
-		add([
+	twig.onStateEnter("pickup", () => {
+	add([
 			sprite("twig"),
-			pos(twig.pos),
-			follow(player),
+			pos(),
 			area(),
-			origin("center"),
-			"twig",
+			follow(player, vec2(-14, -2)),
+			rotate(0),
+			origin("bot"),
+			"twig_pickup",
+			spin(),
 		])
 	})
-		
-	player.play("idle")
 
+function spin() {
+	let spinning = false
+	return {
+		id: "spin",
+		update() {
+			if (spinning) {
+				this.angle += 1200 * dt()
+				if (this.angle >= 360) {
+					this.angle = 0
+					spinning = false
+				}
+			}
+		},
+		spin() {
+			console.log("its spinning!");
+			spinning = true
+		},
+		
+	}
+}
+	onKeyPress("space", () => {
+		
+		let tp = get("twig_pickup")[0]
+		if (tp) {
+			tp.spin();
+		}
+		tp.onCollide("ghost", (ghost) => {
+	destroy(ghost)
+})
+		})
 	
-	// twig.onCollide("ghost", (ghost, twig) => {
-	// 	destroy(ghost),
-	// 	destory(twig)
-	// 	})
+	player.play("idle")
 
 	player.onUpdate(() => {
 
@@ -312,6 +356,7 @@ onKeyDown("right", () => {
 		player.move(0, SPEED)
 	})
 
+	
 	// onClick() registers an event that runs once when left mouse is clicked
 	onClick(() => {
 		// .moveTo() is provided by pos() component, changes the position
@@ -345,7 +390,7 @@ onKeyDown("right", () => {
 	})
 
 	function start() {
-		// Start with the "game" scene, with initial parameters
+		// Start with the "title" scene, with initial parameters
 		go("title")
 	}
 

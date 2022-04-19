@@ -218,6 +218,7 @@ scene("game", ({ levelIdx, score }) => {
 		if (player.isColliding(twig)) {
 			
 			twig.enterState("pickup")
+			destroy(twig)
 		}
 	})
 	
@@ -236,14 +237,16 @@ scene("game", ({ levelIdx, score }) => {
 
 function spin() {
 	let spinning = false
+	let tp = get("twig_pickup")[0]
 	return {
 		id: "spin",
 		update() {
 			if (spinning) {
 				this.angle += 1200 * dt()
-				if (this.angle >= 360) {
-					this.angle = 0
+				if (this.angle >= 120) {
 					spinning = false
+					destroy("twig_pickup")
+					console.log("twig destroyed")
 				}
 			}
 		},
@@ -255,15 +258,17 @@ function spin() {
 	}
 }
 	onKeyPress("space", () => {
-		
+
 		let tp = get("twig_pickup")[0]
 		if (tp) {
-			tp.spin();
+			wait(0.1, () =>
+				tp.spin()
+			)
+			wait(0.3, () =>
+			destroy(tp)
+			)
 		}
-		tp.onCollide("ghost", (ghost) => {
-	destroy(ghost)
 })
-		})
 	
 	player.play("idle")
 
@@ -275,25 +280,7 @@ function spin() {
 			go("lose")
 		}
 	
-		// if (twig.weaponCheck()) {
-		// 		debug.log("hi")
-		// 		player.onCollide("ghost", (ghost) => {
-		// 		debug.log("aklsdjf;lasdkjf;lasdkjf")
-		// 		destroy(ghost),
-		// 			killCount = killCount + 1,
-		// 			debug.log(killCount)
-		// 	})
-		// }
-
 	})
-	
-	
-	
-	// 	if (!twig.weaponCheck()) {
-	// 	player.onCollide("ghost", (ghost) => {
-	// 		go("lose")
-	// 	})
-	// }
 
 player.onCollide("gosling",() => {
 			if (levelIdx < LEVELS.length - 1) {

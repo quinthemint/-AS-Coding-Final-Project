@@ -43,19 +43,19 @@ const LEVELS = [
 		"@       ",
 		"          ",
 		"           ",
-		"   +   ^   ",
+		"   + +  ^   ",
 		"=========== =====*",
 	],
 	[
 		"@                                    ^+ ",
 		"                          ",
 		"                            ",
-		"                 =  ====   ===*",
+		"                 =  ====  ===*",
 		"===  =  =  =  =               ",
 	],
 	[
 		"@          ^    ^     ",
-		"          ===  ===  ===   = *",
+		"          ===  ===  ===  = *",
 		"    +  =  ",
 		"    =     ",
 		"==         ",
@@ -63,7 +63,7 @@ const LEVELS = [
 	[
 		"@      ",
 		"         ^    ^",
-		"   ++  ===  ====   =* ",
+		"   ++  ===  ====  =* ",
 		"======   ",
 		"           ",
 	],
@@ -208,21 +208,22 @@ scene("game", ({ levelIdx, score }) => {
 		],
 	})
 
+	let i = 0
 	const player = get("player")[0]
-	const twig = get("twig")[0]
-	
-	console.log("touch: " + twig.state + " " + player.isColliding(twig))
+	const twigs = get("twig")
 
-	onUpdate(() => {
-			console.log("touch: " + twig.state + " " + player.isColliding(twig))
-		if (player.isColliding(twig)) {
-			
+
+	
+	// console.log("touch: " + twig.state + " " + player.isColliding(twig))
+
+	onCollide("twig","player",(twig, p) => {
 			twig.enterState("pickup")
 			destroy(twig)
-		}
-	})
+		})
 	
-	twig.onStateEnter("pickup", () => {
+	twigs.forEach((twig) => {
+		twig.onStateEnter("pickup", () => {
+		console.log("pickedup!")
 	add([
 			sprite("twig"),
 			pos(),
@@ -233,7 +234,7 @@ scene("game", ({ levelIdx, score }) => {
 			"twig_pickup",
 			spin(),
 		])
-	})
+	}) })
 
 function spin() {
 	let spinning = false
@@ -245,8 +246,10 @@ function spin() {
 				this.angle += 1200 * dt()
 				if (this.angle >= 120) {
 					spinning = false
-					destroy("twig_pickup")
+					destroy(tp)
+					i = i+1
 					console.log("twig destroyed")
+					console.log(i)
 				}
 			}
 		},

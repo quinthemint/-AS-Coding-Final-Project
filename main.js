@@ -36,7 +36,7 @@ loadSprite("holdingtwig", "/sprites/holdingtwig.png")
 loadSprite("stone", "/sprites/cobbletext.png")
 
 // Define player movement speed (pixels per second)
-const SPEED = 320
+var SPEED = 320
 const JUMP_FORCE = 600
 var killCount = 0
 const LEVELS = [
@@ -276,7 +276,8 @@ function spin() {
 	
 	})
 
-player.onCollide("gosling",() => {
+	player.onCollide("gosling", () => {
+	SPEED = 320
 			if (levelIdx < LEVELS.length - 1) {
 				// If there's a next level, go() to the same scene but load the next level
 				go("game", {
@@ -308,6 +309,12 @@ player.onAnimEnd("idle", () => {
 	// You can also register an event that runs when certain anim ends
 })
   
+	onKeyPress("shift", () => {
+		SPEED = 1200
+		wait(0.1, () => {
+			SPEED = 320
+		})
+	})
 	// onKeyDown() registers an event that runs every frame as long as user is holding a certain key
 	onKeyDown("left", () => {
 	player.move(-SPEED, 0)

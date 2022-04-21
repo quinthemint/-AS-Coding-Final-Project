@@ -37,6 +37,7 @@ loadSprite("stone", "/sprites/cobbletext.png")
 
 // Define player movement speed (pixels per second)
 const SPEED = 320
+const JUMP_FORCE = 600
 var killCount = 0
 const LEVELS = [
 	[
@@ -143,17 +144,6 @@ scene("title", () => {
 		}))
 	
 	addButton("tutorial", vec2(200,150), () => go("tutorial"))
-	//add([
-	//	text("play"),
-	//	pos(center().sub(0,50)),
-	//	scale(1),
-	//	area(),
-	//	origin("center")
-	//])
-	//onMouseDown(() => go("game", {
-	//	levelIdx: 0,
-	//	score: 0,
-	//}))
 })
 
 scene("tutorial", () => {
@@ -174,7 +164,7 @@ scene("game", ({ levelIdx, score }) => {
 		"@": () => [
 			sprite("blurbyWalk"),
 			area(),
-			body(),
+			body({ jumpForce: JUMP_FORCE, }),
 			origin("bot"),
 			"player",
 		],
@@ -213,9 +203,6 @@ scene("game", ({ levelIdx, score }) => {
 	const twigs = get("twig")
 
 
-	
-	// console.log("touch: " + twig.state + " " + player.isColliding(twig))
-
 	onCollide("twig","player",(twig, p) => {
 			twig.enterState("pickup")
 			destroy(twig)
@@ -244,6 +231,10 @@ function spin() {
 		update() {
 			if (spinning) {
 				this.angle += 1200 * dt()
+				onCollide("twig_pickup", "ghost", (tp, g) => {
+					console.log("colliding ghost")
+					destroy(g)
+				})
 				if (this.angle >= 120) {
 					spinning = false
 					destroy(tp)
@@ -335,11 +326,9 @@ onKeyDown("right", () => {
 	}
 })
 
-	onKeyDown("up", () => {
-		if (player.isGrounded()) {
-			// .jump() is provided by body()
-			player.jump()
-		}
+	onKeyPress("up", () => {
+		
+			player.doubleJump()
 	})
 
 	onKeyDown("down", () => {

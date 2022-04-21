@@ -6,7 +6,7 @@ end screen
 Possible:
 More weapons
 Give weapons effects
-Dash mechanic
+
 
 Done:
 Start screen 
@@ -15,3 +15,4 @@ Make camera follow
 Resize background (flooring, etc.)
 Remove white background from sprites 
 Make twig able to be picked up 
+Dash mechanic

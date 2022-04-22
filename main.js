@@ -31,8 +31,7 @@ loadSprite("blurbyWalk", "/sprites/walk+idletransparent.png", {
 
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("ghost", "/sprites/ghost.png")
-loadSprite("twig", "/sprites/twig.png")
-loadSprite("holdingtwig", "/sprites/holdingtwig.png")
+loadSprite("twig", "/sprites/sword1.png")
 loadSprite("stone", "/sprites/cobbletext.png")
 
 // Define player movement speed (pixels per second)
@@ -198,7 +197,6 @@ scene("game", ({ levelIdx, score }) => {
 		],
 	})
 
-	let i = 0
 	const player = get("player")[0]
 	const twigs = get("twig")
 
@@ -206,6 +204,10 @@ scene("game", ({ levelIdx, score }) => {
 	onCollide("twig","player",(twig, p) => {
 			twig.enterState("pickup")
 			destroy(twig)
+	})
+	
+	onCollide("ghost","player",(g, p) => {
+			go("lose")
 		})
 	
 	twigs.forEach((twig) => {
@@ -215,7 +217,7 @@ scene("game", ({ levelIdx, score }) => {
 			sprite("twig"),
 			pos(),
 			area(),
-			follow(player, vec2(-14, -2)),
+			follow(player, vec2(-5, -2)),
 			rotate(0),
 			origin("bot"),
 			"twig_pickup",
@@ -234,13 +236,12 @@ function spin() {
 				onCollide("twig_pickup", "ghost", (tp, g) => {
 					console.log("colliding ghost")
 					destroy(g)
-				})
+				}) 
 				if (this.angle >= 120) {
 					spinning = false
 					destroy(tp)
-					i = i+1
 					console.log("twig destroyed")
-					console.log(i)
+					console.log(spinning)
 				}
 			}
 		},
@@ -259,7 +260,8 @@ function spin() {
 				tp.spin()
 			)
 			wait(0.3, () =>
-			destroy(tp)
+				destroy(tp),
+				shake(60)
 			)
 		}
 })
@@ -318,7 +320,7 @@ player.onAnimEnd("idle", () => {
 	// onKeyDown() registers an event that runs every frame as long as user is holding a certain key
 	onKeyDown("left", () => {
 	player.move(-SPEED, 0)
-	player.flipX(true)
+		player.flipX(true)
 	// .play() will reset to the first frame of the anim, so we want to make sure it only runs when the current animation is not "run"
 	if (player.isGrounded() && player.curAnim() !== "run") {
 		player.play("run")

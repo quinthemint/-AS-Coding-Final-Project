@@ -1,22 +1,11 @@
-// Input handling and basic player movement
 
 // Start kaboom 
 import {k} from "./kaboom.js"
 
 // Load assets
 loadSprite("blurbyWalk", "/sprites/walk+idletransparent.png", {
-	// The image contains 5 frames layed out horizontally, slice it into individual frames
 	sliceX: 6,
-	// Define animations
 	anims: {
-		// {
-		// 	// Starts from frame 0, ends at frame 3
-		// 	from: 0,
-		// 	to: 3,
-		// 	// Frame per second
-		// 	speed: 5,
-		// 	loop: true,
-		// },
 		"run": {
 			from: 1,
 			to: 5,
@@ -24,8 +13,6 @@ loadSprite("blurbyWalk", "/sprites/walk+idletransparent.png", {
 			loop: true,
 		},
 		"idle": 0
-		// This animation only has 1 frame
-		// "jump": 8
 	},
 })
 
@@ -34,7 +21,6 @@ loadSprite("ghost", "/sprites/ghost.png")
 loadSprite("twig", "/sprites/sword1.png")
 loadSprite("stone", "/sprites/cobbletext.png")
 
-// Define player movement speed (pixels per second)
 var SPEED = 320
 const JUMP_FORCE = 600
 var killCount = 0
@@ -155,7 +141,6 @@ scene("game", ({ levelIdx, score }) => {
 
 	gravity(2400)
 
-	// Use the level passed, or first level
 	const level = addLevel(LEVELS[levelIdx || 0], {
 		width: 64,
 		height: 64,
@@ -200,7 +185,6 @@ scene("game", ({ levelIdx, score }) => {
 	const player = get("player")[0]
 	const twigs = get("twig")
 
-
 	onCollide("twig","player",(twig, p) => {
 			twig.enterState("pickup")
 			destroy(twig)
@@ -223,7 +207,8 @@ scene("game", ({ levelIdx, score }) => {
 			"twig_pickup",
 			spin(),
 		])
-	}) })
+		})
+	})
 
 function spin() {
 	let spinning = false
@@ -236,6 +221,8 @@ function spin() {
 				onCollide("twig_pickup", "ghost", (tp, g) => {
 					console.log("colliding ghost")
 					destroy(g)
+					killCount = killCount + 1
+					console.log(killCount)
 				}) 
 				if (this.angle >= 120) {
 					spinning = false
@@ -281,13 +268,11 @@ function spin() {
 	player.onCollide("gosling", () => {
 	SPEED = 320
 			if (levelIdx < LEVELS.length - 1) {
-				// If there's a next level, go() to the same scene but load the next level
 				go("game", {
 					levelIdx: levelIdx + 1,
 				})
 				
 			} else {
-				// Otherwise we have reached the end of game, go to "win" scene!
 				go("win")
 			}
 })
@@ -301,7 +286,6 @@ player.onGround(() => {
 })
 	
 onKeyRelease(["left", "right"], () => {
-	// Only reset to "idle" if player is not holding any of these keys
 	if (player.isGrounded() && !isKeyDown("left") && !isKeyDown("right")) {
 		player.play("idle")
 	}
@@ -317,19 +301,26 @@ player.onAnimEnd("idle", () => {
 			SPEED = 320
 		})
 	})
-	// onKeyDown() registers an event that runs every frame as long as user is holding a certain key
+
 	onKeyDown("left", () => {
+	const tp = get("twig_pickup")[0]
 	player.move(-SPEED, 0)
 		player.flipX(true)
-	// .play() will reset to the first frame of the anim, so we want to make sure it only runs when the current animation is not "run"
+		if (tp) {
+			tp.flipX(true)
+		}
 	if (player.isGrounded() && player.curAnim() !== "run") {
 		player.play("run")
 	}
 })
 
-onKeyDown("right", () => {
+	onKeyDown("right", () => {
+	const tp = get("twig_pickup")[0]
 	player.move(SPEED, 0)
-	player.flipX(false)
+		player.flipX(false)
+		if (tp) {
+			tp.flipX(false)
+		}
 	if (player.isGrounded() && player.curAnim() !== "run") {
 		player.play("run")
 	}
@@ -345,7 +336,7 @@ onKeyDown("right", () => {
 	})
 
 	
-	// onClick() registers an event that runs once when left mouse is clicked
+	
 	onClick(() => {
 		// .moveTo() is provided by pos() component, changes the position
 	})
@@ -357,8 +348,9 @@ onKeyDown("right", () => {
 			pos(12),
 		])
 
-		// Press any key to go back
+		
 		onKeyPress(start)
+		onClick(start)
 
 	})
 

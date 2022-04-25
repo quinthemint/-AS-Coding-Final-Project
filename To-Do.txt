@@ -1,7 +1,8 @@
 Make enemy sprite who stands 
 Make enemy who follows 
-Make functional attack feature 
 end screen 
+Make weapons usable on multiple people  
+flip weapon position and swing on character flip
 
 Possible:
 More weapons

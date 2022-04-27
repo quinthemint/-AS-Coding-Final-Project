@@ -16,8 +16,20 @@ loadSprite("blurbyWalk", "/sprites/walk+idletransparent.png", {
 	},
 })
 
+loadSprite("enemy", "/sprites/enemy.png", {
+	sliceX: 2,
+	anims: {
+		walk: {
+			from: 0, 
+			to: 1, 
+			speed: 10,
+			loop: true,
+		},
+		"idle": 0
+	},
+})
+
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
-loadSprite("ghost", "/sprites/ghost.png")
 loadSprite("twig", "/sprites/sword1.png")
 loadSprite("stone", "/sprites/cobbletext.png")
 
@@ -40,9 +52,9 @@ const LEVELS = [
 		"===  =  =  =  =               ",
 	],
 	[
-		"@          ^    ^     ",
-		"          ===  ===  ===  = *",
-		"    +  =  ",
+		"@          ^    ^              ==    ==    ==",
+		"          ===  ===  ===  = ==                             *",
+		"    +  =                                            == ",
 		"    =     ",
 		"==         ",
 	],
@@ -74,17 +86,17 @@ const LEVELS = [
 		"=== === ==  ==  =   =   ===                ===*  ",
 		"           ",
 	],
-]
-const tutorial = [
-	[
-		"@    ",
-		"           ",
-		"             ",
-		"==============*",
-		"           ",
-
+		[
+			"@    ",
+			"           ",
+			"                    +                      ^ ",
+			"===============  ============================================    ================      ================================*",
+			"           ",
+	
+		],
 	]
-]
+
+
 
 scene("title", () => {
 	function addButton(txt, p, f) {
@@ -118,23 +130,20 @@ scene("title", () => {
 	add([
 		text("BLURBY'S RETURN"),
 		color(128, 0, 128),
-		pos(center().sub(100,100)),
+		pos(center().sub(100, 100)),
 		scale(3),
 		origin("center"),
 	])
 
-	addButton("play", vec2(200,100), () => go("game", {
-			levelIdx: 0,
-			score: 0,
-		}))
+	addButton("play", vec2(200, 100), () => go("game", {
+		levelIdx: 0,
+		score: 0,
+	}))
 	
-	addButton("tutorial", vec2(200,150), () => go("tutorial"))
-})
-
-scene("tutorial", () => {
-	add([
-		text("ur bad kid"),
-	])
+	addButton("tutorial", vec2(200, 150), () => go("game", {
+		levelIdx: 7,
+	})
+	)
 })
 
 scene("game", ({ levelIdx, score }) => {
@@ -153,10 +162,9 @@ scene("game", ({ levelIdx, score }) => {
 			"player",
 		],
 		"^": () => [
-			sprite("ghost"),
+			sprite("enemy"),
 			area(),
 			body(),
-			scale(0.1,0.1),
 			origin("bot"),
 			"ghost",
 		],
@@ -267,7 +275,7 @@ function spin() {
 
 	player.onCollide("gosling", () => {
 	SPEED = 320
-			if (levelIdx < LEVELS.length - 1) {
+			if (levelIdx < LEVELS.length - 1 && levelIdx != 6) {
 				go("game", {
 					levelIdx: levelIdx + 1,
 				})
@@ -366,6 +374,32 @@ player.onAnimEnd("idle", () => {
 		onKeyPress(start)
 
 	})
+
+		if (levelIdx == 7) {
+			add([
+				text("Welcome back Blurby! It's been a while. Let's get you warmed up! Use the arrow keys to move left, right, and to jump."),
+				pos(50,25),
+			])
+			add([
+				text("Here's your trusty sword! you can pick it up by walking over to it. Press space to swing your sword. Be careful though, you only have one swing per sword! Go ahead and kill that فارس up there."),
+				pos(1150, 25),
+			])
+			add([
+				text("Good job! Uh oh, theres a jump coming up. Press the up arrow again while in the air to perform a double jump."),
+				pos(3000, 25)
+			])
+			add([
+				text("Awesome! Kinda sucks though, you're only moving at 2 times the speed of light. Press shift to go 10x for a quick dash!"),
+				pos(4200, 25)
+			])
+			add([
+				text("Nice! Did you know, if you were at 10% power and you swung that sword, spacetime itself would collapse leaving you alone in an infinitely vast void! Thank god you're only using 0.23%. Enter this portal to go back to the menu!"),
+				pos(5600, 25)
+			])
+
+
+	}
+
 
 	})
 

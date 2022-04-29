@@ -1,4 +1,3 @@
-Make enemy sprite who stands 
 Make enemy who follows 
 end screen 
 Make weapons usable on multiple people  
@@ -8,12 +7,3 @@ Possible:
 More weapons
 Give weapons effects
 
-
-Done:
-Start screen 
-tutorial 
-Make camera follow
-Resize background (flooring, etc.)
-Remove white background from sprites 
-Make twig able to be picked up 
-Dash mechanic

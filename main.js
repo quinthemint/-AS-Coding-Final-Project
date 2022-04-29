@@ -36,20 +36,36 @@ loadSprite("stone", "/sprites/cobbletext.png")
 var SPEED = 320
 const JUMP_FORCE = 600
 var killCount = 0
+var checkpoint = 1
+const Timer = {
+	displayTime: function () {
+		console.log(this.beginTime)
+	},
+	beginTime: function () {
+		return dt()
+	}
+}
+let t = Timer
 const LEVELS = [
 	[
-		"@       ",
-		"          ",
-		"           ",
-		"   + +  ^   ",
-		"=========== =====*",
+		"@                          +                  ^",
+		"=====    ^                 ===   =     =     ==    =  ",
+		"        ===           ==   =    ",
+		"              =      =     =         ^   ^   ^       == *  ",
+		"                ==       = =        ==  ==  ==  = ",
+		"                            ^   =    ",
+		"                           =="
 	],
 	[
-		"@                                    ^+ ",
-		"                          ",
-		"                            ",
-		"                 =  ====      ===*",
-		"===  =  =  =  =               ",
+		"                                        =",
+		"    ==                                  =",
+		"     ====                               = ===      ===* ",
+		"    ==   ===                   ^          =            =",
+		"@    =      ===     ====      ==      ===             = ", 
+		"====== +            =                                 = ",
+		"      ======      ==                            ======",
+		"                  =                          === ",
+		"                 =                      ====="
 	],
 	[
 		"@          ^    ^              ==    ==    ==",
@@ -147,9 +163,8 @@ scene("title", () => {
 })
 
 scene("game", ({ levelIdx, score }) => {
-
 	gravity(2400)
-
+	t.beginTime()
 	const level = addLevel(LEVELS[levelIdx || 0], {
 		width: 64,
 		height: 64,
@@ -198,7 +213,8 @@ scene("game", ({ levelIdx, score }) => {
 			destroy(twig)
 	})
 	
-	onCollide("ghost","player",(g, p) => {
+	onCollide("ghost", "player", (g, p) => {
+		checkpoint = 0
 			go("lose")
 		})
 	
@@ -264,17 +280,20 @@ function spin() {
 	player.play("idle")
 
 	player.onUpdate(() => {
-
+t.displayTime()
 		camPos(player.pos)
-
 		if (player.pos.y >= 1000) {
-			go("lose")
+			go("game", {
+				levelIdx: checkpoint
+			})
 		}
 	
 	})
 
 	player.onCollide("gosling", () => {
-	SPEED = 320
+		SPEED = 320
+		checkpoint = checkpoint + 1 
+		console.log("checkpoint is : " + checkpoint)
 			if (levelIdx < LEVELS.length - 1 && levelIdx != 6) {
 				go("game", {
 					levelIdx: levelIdx + 1,

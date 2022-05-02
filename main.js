@@ -36,16 +36,8 @@ loadSprite("stone", "/sprites/cobbletext.png")
 var SPEED = 320
 const JUMP_FORCE = 600
 var killCount = 0
-var checkpoint = 1
-const Timer = {
-	displayTime: function () {
-		console.log(this.beginTime)
-	},
-	beginTime: function () {
-		return dt()
-	}
-}
-let t = Timer
+var checkpoint = 0
+var gameTime = 0
 const LEVELS = [
 	[
 		"@                          +                  ^",
@@ -164,7 +156,7 @@ scene("title", () => {
 
 scene("game", ({ levelIdx, score }) => {
 	gravity(2400)
-	t.beginTime()
+	
 	const level = addLevel(LEVELS[levelIdx || 0], {
 		width: 64,
 		height: 64,
@@ -207,6 +199,22 @@ scene("game", ({ levelIdx, score }) => {
 
 	const player = get("player")[0]
 	const twigs = get("twig")
+
+	let timer = add([
+    text('0'),
+        pos(width() - 100, 25),
+		scale(2),
+		follow(player, vec2(-150, -125)),
+        layer("ui"),
+        {
+            time: gameTime,
+        },
+        "timer",
+])
+timer.onUpdate(()=>{
+    timer.time += dt();
+    timer.text = timer.time.toFixed(2);
+});
 
 	onCollide("twig","player",(twig, p) => {
 			twig.enterState("pickup")
@@ -280,9 +288,9 @@ function spin() {
 	player.play("idle")
 
 	player.onUpdate(() => {
-t.displayTime()
 		camPos(player.pos)
 		if (player.pos.y >= 1000) {
+			gameTime = timer.time
 			go("game", {
 				levelIdx: checkpoint
 			})
@@ -294,6 +302,7 @@ t.displayTime()
 		SPEED = 320
 		checkpoint = checkpoint + 1 
 		console.log("checkpoint is : " + checkpoint)
+		gameTime = timer.time
 			if (levelIdx < LEVELS.length - 1 && levelIdx != 6) {
 				go("game", {
 					levelIdx: levelIdx + 1,
@@ -369,12 +378,17 @@ player.onAnimEnd("idle", () => {
 	})
 
 	scene("lose", () => {
-
+		gameTime = 0
+		timer.time = 0
 		add([
 			text("You Lose"),
-			pos(12),
+			pos((width()/2) - 50 , (height()/2) - 50),
 		])
 
+			add([
+				text("Press any key to return to the title screen"),
+			pos((width()/2) - 155 , (height()/2) + 50),
+		])
 		
 		onKeyPress(start)
 		onClick(start)
@@ -384,23 +398,29 @@ player.onAnimEnd("idle", () => {
 	scene("win", () => {
 
 		add([
-			text("You killed " + killCount + " enemies!!!", {
+			text("Blurby succeeded in his incomprehensible objective!", {
 				width: width(),
 			}),
-			pos(12),
+			pos((width()/2) - 200 , (height()/2) - 50),
+		])
+
+			add([
+			text("Your time was: " + timer.time.toFixed(2)),
+			pos((width()/2) - 100 , (height()/2) + 50),
 		])
 
 		onKeyPress(start)
 
 	})
 
-		if (levelIdx == 7) {
+	if (levelIdx == 7) {
+			checkpoint = 7
 			add([
 				text("Welcome back Blurby! It's been a while. Let's get you warmed up! Use the arrow keys to move left, right, and to jump."),
 				pos(50,25),
 			])
 			add([
-				text("Here's your trusty sword! you can pick it up by walking over to it. Press space to swing your sword. Be careful though, you only have one swing per sword! Go ahead and kill that فارس up there."),
+				text("Here's your trusty sword! you can pick it up by walking over to it. Press space to swing your sword. Be careful though, you only have one swing per sword! Go ahead and kill that enemy over there."),
 				pos(1150, 25),
 			])
 			add([

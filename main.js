@@ -32,6 +32,7 @@ loadSprite("enemy", "/sprites/enemy.png", {
 loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("twig", "/sprites/sword1.png")
 loadSprite("stone", "/sprites/cobbletext.png")
+loadSprite("background", "/sprites/background.png")
 
 var SPEED = 320
 const JUMP_FORCE = 600
@@ -39,6 +40,34 @@ var killCount = 0
 var checkpoint = 0
 var gameTime = 0
 const LEVELS = [
+	[
+		"                       @                               ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",
+		"                    =     =                             ",		
+		"                                                      ",
+		"                                                      ",
+		"                                                      ",
+		"                                                      ",
+		"                                                      ",
+		"                                                      ",
+		"                                                      ",
+		"                      *                                ",
+		"                                                      ",
+		"                                                      ",
+	],
 	[
 		"@                          +                  ^",
 		"=====    ^                 ===   =     =     ==    =  ",
@@ -60,39 +89,65 @@ const LEVELS = [
 		"                 =                      ====="
 	],
 	[
-		"@          ^    ^              ==    ==    ==",
-		"          ===  ===  ===  = ==                             *",
-		"    +  =                                            == ",
-		"    =     ",
-		"==         ",
+		"                                        =",
+		"    ==                                  =",
+		"     ====                               = ===      ===* ",
+		"    == ===                   =         =            =",
+		"@         ===     ==      ==      ===             = ", 
+		"====== +                                             = ",
+		"      ======      ==                       ^ ^   ======",
+		"                                           === ",
+		"                                     ====="
 	],
 	[
-		"@      ",
-		"         ^    ^",
-		"   ++  ===  ====  =* ",
-		"======   ",
-		"           ",
-	],
-		[
-		"@      ",
-		"        ^    ",
-		"   +    ====  ^  ",
-		"=======      ===*", 
-		"           ",
+		"             												",
+		"             												",
+		"             ==                                     	",
+		"@      	=	  =     =    =                           ",
+		"          =                     ^	  ^					    ",
+		"   +  === 	            ==      ====  =     *            ",
+		"======                               			        ",
+		"           									     	",
 	],
 	[
-		"@      ",
-		"             ",
-		"   +    ^           ^",
-		"==================  =   *   ",
-		"           ",
+		"    ==          ",
+		"     =          ",
+		"    ==          ",
+		"    ^ =          ",
+		"    ==          ",
+		"    + =     = =    ",	
+		"    ==          ",
+		"     =       *   ",
+		"@   ==          ",
+		"=======           ", 
+		"                  ",
 	],
 	[
-		"@                                                       +^",
-		"                                     == ",
-		"                             ==  ==      ",
-		"=== === ==  ==  =   =   ===                ===*  ",
-		"           ",
+		"          = @ =              ",
+		"          ^    ^            ",
+		"          =   =             ",
+		"   =                       ",
+		"                          ",
+		"       ==      +             ",
+        "               =           ",
+		"                          ",
+		"    ^       =               ",
+		"   ===           ^            ",
+		"               ===           ",
+		"           +               ",
+		"         ===                 ",
+		"                             ",
+		"               =      ^ ^ ^   ",
+		"                 ==========  =      ",
+		"                                 *     ",
+	],
+	[
+		"@                                                        ",
+		"                                          ==             ",
+		"                               ==     ==                 ",
+		"=== === ==  ==   =   =   ===                             ",
+		"                                                         ",
+		"                                                   ===*    ",
 	],
 		[
 			"@    ",
@@ -149,7 +204,7 @@ scene("title", () => {
 	}))
 	
 	addButton("tutorial", vec2(200, 150), () => go("game", {
-		levelIdx: 7,
+		levelIdx: 8,
 	})
 	)
 })
@@ -157,10 +212,14 @@ scene("title", () => {
 scene("game", ({ levelIdx, score }) => {
 	gravity(2400)
 	
+	layers(["background",
+	"game",
+	"ui",
+	], "game")
+	
 	const level = addLevel(LEVELS[levelIdx || 0], {
 		width: 64,
 		height: 64,
-		// pos: vec2(100, 200),
 		"@": () => [
 			sprite("blurbyWalk"),
 			area(),
@@ -200,6 +259,14 @@ scene("game", ({ levelIdx, score }) => {
 	const player = get("player")[0]
 	const twigs = get("twig")
 
+add([
+	sprite("background"),
+		layer("background"),
+		scale(6),
+	follow(player, vec2(-500, -600)),
+		pos(0,0)
+])
+	
 	let timer = add([
     text('0'),
         pos(width() - 100, 25),
@@ -222,8 +289,10 @@ timer.onUpdate(()=>{
 	})
 	
 	onCollide("ghost", "player", (g, p) => {
-		checkpoint = 0
-			go("lose")
+		gameTime = gameTime + 5
+		go("game", {
+			levelIdx: checkpoint
+		})
 		})
 	
 	twigs.forEach((twig) => {
@@ -289,7 +358,7 @@ function spin() {
 
 	player.onUpdate(() => {
 		camPos(player.pos)
-		if (player.pos.y >= 1000) {
+		if (player.pos.y >= 3000) {
 			gameTime = timer.time
 			go("game", {
 				levelIdx: checkpoint
@@ -303,7 +372,7 @@ function spin() {
 		checkpoint = checkpoint + 1 
 		console.log("checkpoint is : " + checkpoint)
 		gameTime = timer.time
-			if (levelIdx < LEVELS.length - 1 && levelIdx != 6) {
+			if (levelIdx < LEVELS.length - 1 && levelIdx != 8) {
 				go("game", {
 					levelIdx: levelIdx + 1,
 				})
@@ -371,12 +440,6 @@ player.onAnimEnd("idle", () => {
 		player.move(0, SPEED)
 	})
 
-	
-	
-	onClick(() => {
-		// .moveTo() is provided by pos() component, changes the position
-	})
-
 	scene("lose", () => {
 		gameTime = 0
 		timer.time = 0
@@ -408,13 +471,14 @@ player.onAnimEnd("idle", () => {
 			text("Your time was: " + timer.time.toFixed(2)),
 			pos((width()/2) - 100 , (height()/2) + 50),
 		])
-
+		gameTime = 0
+		timer.time = 0
 		onKeyPress(start)
 
 	})
 
-	if (levelIdx == 7) {
-			checkpoint = 7
+	if (levelIdx == 8) {
+			checkpoint = 8
 			add([
 				text("Welcome back Blurby! It's been a while. Let's get you warmed up! Use the arrow keys to move left, right, and to jump."),
 				pos(50,25),

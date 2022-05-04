@@ -38,7 +38,7 @@ loadSprite("door", "/sprites/door.png")
 var SPEED = 320
 const JUMP_FORCE = 600
 var killCount = 0
-var checkpoint = 6
+var checkpoint = 0
 var gameTime = 0
 const LEVELS = [
 	[

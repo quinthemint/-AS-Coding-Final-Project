@@ -33,11 +33,12 @@ loadSprite("gosling", "/sprites/bladerunner.jpeg")
 loadSprite("twig", "/sprites/sword1.png")
 loadSprite("stone", "/sprites/cobbletext.png")
 loadSprite("background", "/sprites/background.png")
+loadSprite("door", "/sprites/door.png")
 
 var SPEED = 320
 const JUMP_FORCE = 600
 var killCount = 0
-var checkpoint = 0
+var checkpoint = 6
 var gameTime = 0
 const LEVELS = [
 	[
@@ -71,16 +72,16 @@ const LEVELS = [
 	[
 		"@                          +                  ^",
 		"=====    ^                 ===   =     =     ==    =  ",
-		"        ===           ==   =    ",
-		"              =      =     =         ^   ^   ^       == *  ",
+		"        ===           ==   =                            &   ",
+		"              =      =     =         ^   ^   ^       == =  ",
 		"                ==       = =        ==  ==  ==  = ",
 		"                            ^   =    ",
 		"                           =="
 	],
 	[
 		"                                        =",
-		"    ==                                  =",
-		"     ====                               = ===      ===* ",
+		"    ==                                  =            & ",
+		"     ====                               = ===      === ",
 		"    ==   ===                   ^          =            =",
 		"@    =      ===     ====      ==      ===             = ", 
 		"====== +            =                                 = ",
@@ -90,8 +91,8 @@ const LEVELS = [
 	],
 	[
 		"                                        =",
-		"    ==                                  =",
-		"     ====                               = ===      ===* ",
+		"    ==                                  =            &",
+		"     ====                               = ===      === ",
 		"    == ===                   =         =            =",
 		"@         ===     ==      ==      ===             = ", 
 		"====== +                                             = ",
@@ -105,8 +106,8 @@ const LEVELS = [
 		"             ==                                     	",
 		"@      	=	  =     =    =                           ",
 		"          =                     ^	  ^					    ",
-		"   +  === 	            ==      ====  =     *            ",
-		"======                               			        ",
+		"   +  === 	            ==      ====  =     &            ",
+		"======                               		=	        ",
 		"           									     	",
 	],
 	[
@@ -117,8 +118,8 @@ const LEVELS = [
 		"    ==          ",
 		"    + =     = =    ",	
 		"    ==          ",
-		"     =       *   ",
-		"@   ==          ",
+		"     =       &   ",
+		"@   ==       =   ",
 		"=======           ", 
 		"                  ",
 	],
@@ -139,7 +140,8 @@ const LEVELS = [
 		"                             ",
 		"               =      ^ ^ ^   ",
 		"                 ==========  =      ",
-		"                                 *     ",
+		"                                 &     ",
+		"                                 =     ",
 	],
 	[
 		"@                                                        ",
@@ -152,8 +154,8 @@ const LEVELS = [
 		[
 			"@    ",
 			"           ",
-			"                    +                      ^ ",
-			"===============  ============================================    ================      ================================*",
+			"                    +                      ^                                                                       &    ",
+			"===============  ============================================    ================      ================================",
 			"           ",
 	
 		],
@@ -246,6 +248,14 @@ scene("game", ({ levelIdx, score }) => {
 			area(),
 			solid(),
 			"gosling",
+			origin("bot"),
+		],
+			"&": () => [
+			sprite("door"),
+			area(),
+			solid(),
+			scale(0.25),
+			"door",
 			origin("bot"),
 		],
 		"=": () => [
@@ -372,7 +382,22 @@ function spin() {
 		checkpoint = checkpoint + 1 
 		console.log("checkpoint is : " + checkpoint)
 		gameTime = timer.time
-			if (levelIdx < LEVELS.length - 1 && levelIdx != 8) {
+			if (levelIdx < LEVELS.length - 1 && levelIdx != 7) {
+				go("game", {
+					levelIdx: levelIdx + 1,
+				})
+				
+			} else {
+				go("win")
+			}
+	})
+	
+	player.onCollide("door", () => {
+		SPEED = 320
+		checkpoint = checkpoint + 1 
+		console.log("checkpoint is : " + checkpoint)
+		gameTime = timer.time
+			if (levelIdx < LEVELS.length - 1 && levelIdx != 7) {
 				go("game", {
 					levelIdx: levelIdx + 1,
 				})
@@ -496,7 +521,7 @@ player.onAnimEnd("idle", () => {
 				pos(4200, 25)
 			])
 			add([
-				text("Nice! Did you know, if you were at 10% power and you swung that sword, spacetime itself would collapse leaving you alone in an infinitely vast void! Thank god you're only using 0.23%. Enter this portal to go back to the menu!"),
+				text("Nice! Did you know, if you were at 10% power and you swung that sword, spacetime itself would collapse leaving you alone in an infinitely vast void! Thank god you're only using 0.23%. Enter this door to go back to the menu!"),
 				pos(5600, 25)
 			])
 
